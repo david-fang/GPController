@@ -1,10 +1,15 @@
+/**
+ * Shutter control program via Bluetooth. See ShutterControl.ino for more
+ * details regarding shutter control with a mini-B module and transistor.
+ */
+
 #include <SPI.h>
 #include "Adafruit_BLE_UART.h"
 
-// Mini-B USB
+/* Mini-B USB */
 #define base 3
 
-// Bluetooth
+/* Bluetooth */
 #define ADAFRUITBLE_REQ 10
 #define ADAFRUITBLE_RDY 2
 #define ADAFRUITBLE_RST 9
@@ -14,6 +19,7 @@ Adafruit_BLE_UART uart = Adafruit_BLE_UART(ADAFRUITBLE_REQ, ADAFRUITBLE_RDY, ADA
 int x;
 int cont;
 
+/** Callback function for ACI events */
 void aciCallback(aci_evt_opcode_t event)
 {
   switch(event)
@@ -32,6 +38,7 @@ void aciCallback(aci_evt_opcode_t event)
   }
 }
 
+/** Callback function for packets from central manager */
 void rxCallback(uint8_t *buffer, uint8_t len)
 {
   char command = (char)buffer[0];
@@ -60,6 +67,7 @@ void rxCallback(uint8_t *buffer, uint8_t len)
   uart.write(buffer, len);
 }
 
+/** Holds down the trigger for one second */
 void TakeSingleShot()
 {
   digitalWrite(base, HIGH);
@@ -71,15 +79,18 @@ void setup(void)
 {
   Serial.begin(9600);
   while(!Serial); // Leonardo/Micro should wait for serial init
-  Serial.println(F("Gigapan Single Axis BLE Control -- Demo"));
+  Serial.println(F("Bluetooth Shutter Control -- Demo"));
 
-  // Bluetooth setup
   uart.setRXcallback(rxCallback);
   uart.setACIcallback(aciCallback);
-  uart.setDeviceName("GigaPan"); /* 7 characters max! */
+  uart.setDeviceName("GigaPan"); /* 7 characters max */
   uart.begin();
 }
 
+/** 
+ *  Continues to poll for packets from the Bluetooth central manager (i.e. the 
+ *  GPCtrl iOS app.
+ */
 void loop()
 {
   uart.pollACI();
