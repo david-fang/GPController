@@ -98,8 +98,7 @@ void rxCallback(uint8_t *buffer, uint8_t len)
 
 
 /** Reset both Big Easy Drivers' pins to default states */
-void resetBEDPins()
-{
+void resetBEDPins() {
   digitalWrite(v_stp, LOW);
   digitalWrite(v_dir, LOW);
   digitalWrite(v_MS1, LOW);
@@ -109,15 +108,14 @@ void resetBEDPins()
 
   digitalWrite(h_stp, LOW);
   digitalWrite(h_dir, LOW);
-  digitalWrite(h_MS1, LOW);
+  digitalWrite(h_MS1, HIGH);
   digitalWrite(h_MS2, LOW);
   digitalWrite(h_MS3, LOW);
   digitalWrite(h_EN, HIGH);
 }
 
 /** Pans the GigaPan forwards */
-void MoveForward()
-{
+void MoveForward() {
   Serial.println("Continuing to step.");
   digitalWrite(v_dir, LOW);
   while(cont) {
@@ -130,8 +128,7 @@ void MoveForward()
 }
 
 /** Pans the GigaPan backwards */
-void MoveBackward()
-{
+void MoveBackward() {
   Serial.println("Continuing to step.");
   digitalWrite(v_dir, HIGH);
   while(cont) {
@@ -144,36 +141,33 @@ void MoveBackward()
 }
 
 /** Pans the GigaPan leftwards */
-void MoveLeft()
-{
+void MoveLeft() {
   Serial.println("Continuing to step.");
   digitalWrite(h_dir, LOW);
   while(cont) {
     digitalWrite(h_stp, HIGH);  
     delay(1);
-    digitalWrite(h_stp,LOW); //Pull step pin low so it can be triggered again
+    digitalWrite(h_stp,LOW);
     delay(1);
     uart.pollACI();
   }
 }
 
 /** Pans the GigaPan rightwards */
-void MoveRight()
-{
+void MoveRight() {
   Serial.println("Continuing to step.");
   digitalWrite(h_dir, HIGH);
   while(cont) {
     digitalWrite(h_stp, HIGH);  
     delay(1);
-    digitalWrite(h_stp,LOW); //Pull step pin low so it can be triggered again
+    digitalWrite(h_stp,LOW);
     delay(1);
     uart.pollACI();
   }
 }
 
 /** Setup Bluetooth UART and stepper drivers */
-void setup(void)
-{ 
+void setup(void) { 
   /* Vertical stepper setup */
   pinMode(v_dir, OUTPUT);
   pinMode(v_MS1, OUTPUT);
@@ -205,8 +199,7 @@ void setup(void)
  *  Continues to poll for packets from the Bluetooth central manager (i.e. the 
  *  GPCtrl iOS app.
  */
-void loop()
-{
+void loop() {
   uart.pollACI();
 }
 

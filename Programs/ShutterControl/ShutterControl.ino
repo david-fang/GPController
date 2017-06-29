@@ -36,11 +36,13 @@ void loop() {
          * number.
          */
         case '1':
+          Serial.println("Single shot...");
           digitalWrite(base, HIGH);
           delay(1000);
           pinMode(base, LOW);
           break;
         case '2':
+          Serial.println("Continuous shot for 5 seconds...");
           digitalWrite(base, HIGH);
           delay(5000);
           pinMode(base, LOW);
@@ -51,7 +53,8 @@ void loop() {
       }
 
       Serial.println("DONE");
-      Serial.println("Enter new option:");
+      Serial.println();
+      
   }
 }
 

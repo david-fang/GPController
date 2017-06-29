@@ -40,14 +40,12 @@ void aciCallback(aci_evt_opcode_t event) {
 }
 
 /** Callback function for packets from central manager */
-void rxCallback(uint8_t *buffer, uint8_t len) {
-  registerWrite(V_EN, LOW);
-  registerWrite(H_EN, LOW);
-  
+void rxCallback(uint8_t *buffer, uint8_t len) {  
   char command = (char)buffer[0];
   Serial.print("Received command value: ");
   for(int i=0; i<len; i++)
-    Serial.print((char)buffer[i]); 
+    Serial.print((char)buffer[i]);
+  Serial.println();
 
   switch (command) {
     case '0': cont = 0; break;
@@ -63,7 +61,6 @@ void rxCallback(uint8_t *buffer, uint8_t len) {
 
   /* Echo the same data back! */
   uart.write(buffer, len);
-  resetBEDPins();
 }
 
 /** 
@@ -115,6 +112,7 @@ void moveMotor(Direction dir, int numSteps = -1) {
     }
   }
 
+  Serial.println("Reset");
   resetBEDPins();
 }
 
@@ -132,7 +130,6 @@ void takeSingleShot() {
  *  iOS device running the GPCtrl app).
  */
 void loop() {
-  salute();
   uart.pollACI();
 }
 
@@ -141,8 +138,9 @@ void loop() {
 /* Performs basic setup at startup. */
 void setup(void) {
   pinMode(SHUTTER, OUTPUT);
+  initShiftPins();    // IMPORTANT: shift pins need to be init
+                      // before motor pins can be reset
   initMotorPins();
-  initShiftPins();
   
   Serial.begin(9600);
   while(!Serial);

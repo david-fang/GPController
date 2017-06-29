@@ -64,7 +64,6 @@ void pulseStepper(int stp_pin) {
  * 
  * @arg axis     -- The axis to compute for.
  * @arg rotation -- The degree of rotation that the axis will rotate by.
- * 
  */
 int degreesToSteps(Axis axis, int rotation) {
   int stepsPerRev;
