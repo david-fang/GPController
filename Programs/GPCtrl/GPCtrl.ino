@@ -17,8 +17,6 @@
 #define ADAFRUITBLE_RDY 3
 #define ADAFRUITBLE_RST 9
 
-void moveMotor(Direction dir, int numSteps = -1);
-
 Adafruit_BLE_UART uart = Adafruit_BLE_UART(ADAFRUITBLE_REQ, ADAFRUITBLE_RDY, ADAFRUITBLE_RST);
 int cont = 0;
 
@@ -40,24 +38,34 @@ void aciCallback(aci_evt_opcode_t event) {
 }
 
 /** Callback function for packets from central manager */
-void rxCallback(uint8_t *buffer, uint8_t len) {  
-  char command = (char)buffer[0];
-  Serial.print("Received command value: ");
-  for(int i=0; i<len; i++)
-    Serial.print((char)buffer[i]);
+void rxCallback(char *buffer, uint8_t len) {
+  char *cmd;
+  int arg = -1;
+  char msg[len + 1];
+  strncpy(msg, buffer, len);
+  msg[len] = '\0';
+
+  char *token = strtok(msg, " ");
+  cmd = token;
+  token = strtok(NULL, " ");
+  if (token != NULL) {
+    arg = atoi(token);
+  }
+
+  Serial.print("Received command value ");
+  for (int i=0; i<len; i++)
+    Serial.print(buffer[i]);
+  Serial.print(" with argument ");
+  Serial.print(arg);
   Serial.println();
 
-  switch (command) {
-    case '0': cont = 0; break;
-    case '1': moveMotor(forward); break;
-    case '2': moveMotor(backward); break;
-    case '3': moveMotor(left); break;
-    case '4': moveMotor(right); break;
-    case '5': takeSingleShot(); break;
-    default:
-      Serial.println("Option not found.");
-      break;
-  }
+  if      (!strcmp(cmd, "PAUSE"))     { Serial.println("Pausing"); cont = 0; }
+  else if (!strcmp(cmd, "FORWARD"))   { moveMotor(forward, arg); }
+  else if (!strcmp(cmd, "BACKWARD"))  { moveMotor(backward, arg); }
+  else if (!strcmp(cmd, "LEFT"))      { moveMotor(left, arg); }
+  else if (!strcmp(cmd, "RIGHT"))     { moveMotor(right, arg); }
+  else if (!strcmp(cmd, "SHUTTER"))   { Serial.println("Shooting"); takeSingleShot(); }
+  else                                { Serial.println("Option not found"); Serial.println(String(cmd)); }
 
   /* Echo the same data back! */
   uart.write(buffer, len);
@@ -75,9 +83,11 @@ void rxCallback(uint8_t *buffer, uint8_t len) {
  *                   equal to -1, the motor will move indefinitely until
  *                   interruped (i.e. by the central manager).
  */
-void moveMotor(Direction dir, int numSteps = -1) {
+void moveMotor(Direction dir, int numSteps) {
   registerWrite(V_EN, LOW);   // Pull ENABLE pins to allow for movement
   registerWrite(H_EN, LOW);
+
+  Serial.println("Moving motor");
   
   int stp_pin;
   switch (dir) {
