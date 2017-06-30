@@ -19,6 +19,7 @@
 
 Adafruit_BLE_UART uart = Adafruit_BLE_UART(ADAFRUITBLE_REQ, ADAFRUITBLE_RDY, ADAFRUITBLE_RST);
 int cont = 0;
+int i;
 
 /** Callback function for ACI events */
 void aciCallback(aci_evt_opcode_t event) {
@@ -53,7 +54,7 @@ void rxCallback(char *buffer, uint8_t len) {
   }
 
   Serial.print("Received command value ");
-  for (int i=0; i<len; i++)
+  for (i = 0; i < len; i++)
     Serial.print(buffer[i]);
   Serial.print(" with argument ");
   Serial.print(arg);
@@ -68,7 +69,7 @@ void rxCallback(char *buffer, uint8_t len) {
   else                                { Serial.println("Option not found"); Serial.println(String(cmd)); }
 
   /* Echo the same data back! */
-  uart.write(buffer, len);
+  // uart.write(buffer, len);
 }
 
 /** 
@@ -117,10 +118,9 @@ void moveMotor(Direction dir, int angle) {
     }
   } else {
     int numSteps = degreesToSteps(dir, angle);
-    for (int i = 0; i < numSteps; i++) {
-      pulseStepper(stp_pin);
-      uart.pollACI();
-    }
+    Serial.println(numSteps);
+    for (i = 0; i < numSteps; i++) { pulseStepper(stp_pin); }
+    sendCompletionCallback();
   }
 
   Serial.println("Reset");
@@ -132,6 +132,11 @@ void takeSingleShot() {
   digitalWrite(SHUTTER, HIGH);
   delay(1000);
   digitalWrite(SHUTTER, LOW);
+  sendCompletionCallback();
+}
+
+void sendCompletionCallback() {
+  uart.write("OK", 2);
 }
 
 /** 
