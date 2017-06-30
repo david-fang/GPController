@@ -77,18 +77,18 @@ void rxCallback(char *buffer, uint8_t len) {
  *  bool to false). Motor pins are set back to their default values
  *  as the function exits.
  *  
- *  @arg dir      -- The direction (left, forward, right, backward) to move
- *                   the motor in.
- *  @arg numSteps -- A fixed number of steps this motor should take. If 
- *                   equal to -1, the motor will move indefinitely until
- *                   interruped (i.e. by the central manager).
+ *  @arg dir   -- The direction (left, forward, right, backward) to move
+ *                the motor in.
+ *  @arg angle -- A fixed angle that the motor should rotate by. If 
+ *                equal to -1, the motor will move indefinitely until
+ *                interruped (i.e. by the central manager).
  */
-void moveMotor(Direction dir, int numSteps) {
+void moveMotor(Direction dir, int angle) {
   registerWrite(V_EN, LOW);   // Pull ENABLE pins to allow for movement
   registerWrite(H_EN, LOW);
 
   Serial.println("Moving motor");
-  
+
   int stp_pin;
   switch (dir) {
     case left:
@@ -109,13 +109,14 @@ void moveMotor(Direction dir, int numSteps) {
       break;
   }
 
-  if (numSteps < 0) {
+  if (angle < 0) {
     cont = 1;
     while(cont) {
       pulseStepper(stp_pin);
       uart.pollACI();
     }
   } else {
+    int numSteps = degreesToSteps(dir, angle);
     for (int i = 0; i < numSteps; i++) {
       pulseStepper(stp_pin);
       uart.pollACI();

@@ -27,5 +27,5 @@ enum Axis { horizontal, vertical };
 void initMotorPins();
 void resetBEDPins();
 void pulseStepper(int stp_pin);
-int degreesToSteps(int rotation);
+unsigned int degreesToSteps(Direction dir, int rotation);
 

@@ -65,17 +65,15 @@ void pulseStepper(int stp_pin) {
  * @arg axis     -- The axis to compute for.
  * @arg rotation -- The degree of rotation that the axis will rotate by.
  */
-int degreesToSteps(Axis axis, int rotation) {
+unsigned int degreesToSteps(Direction dir, int rotation) {
   int stepsPerRev;
-  switch (axis) {
-    case horizontal:
+  if (dir == left || dir == right) {
       stepsPerRev = H_FULL_STEPS_PER_REV;
-      break;
-    case vertical:
+  } else {
       stepsPerRev = V_FULL_STEPS_PER_REV;
-      break;
   }
 
-  return (rotation * stepsPerRev) / DEGREES_PER_REV;
+  long result = ((long) rotation * stepsPerRev);
+  return (unsigned int) (result / DEGREES_PER_REV);
 }
 
