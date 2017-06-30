@@ -67,11 +67,10 @@ void pulseStepper(int stp_pin) {
  */
 unsigned int degreesToSteps(Direction dir, int rotation) {
   int stepsPerRev;
-  if (dir == left || dir == right) {
+  if (dir == left || dir == right)
       stepsPerRev = H_FULL_STEPS_PER_REV;
-  } else {
+  else
       stepsPerRev = V_FULL_STEPS_PER_REV;
-  }
 
   long result = ((long) rotation * stepsPerRev);
   return (unsigned int) (result / DEGREES_PER_REV);
