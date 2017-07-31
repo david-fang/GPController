@@ -42,6 +42,7 @@ void aciCallback(aci_evt_opcode_t event) {
 void rxCallback(char *buffer, uint8_t len) {
   char *cmd;
   int arg = -1;
+  float shutterArg = -1;
   char msg[len + 1];
   strncpy(msg, buffer, len);
   msg[len] = '\0';
@@ -50,7 +51,11 @@ void rxCallback(char *buffer, uint8_t len) {
   cmd = token;
   token = strtok(NULL, " ");
   if (token != NULL) {
-    arg = atoi(token);
+    if (!strcmp(cmd, "SHUTTER")) {
+      shutterArg = atof(token);
+    } else {
+      arg = atoi(token);  
+    }
   }
 
   Serial.print("Received command value ");
@@ -65,7 +70,7 @@ void rxCallback(char *buffer, uint8_t len) {
   else if (!strcmp(cmd, "BACKWARD"))  { moveMotor(backward, arg); }
   else if (!strcmp(cmd, "LEFT"))      { moveMotor(left, arg); }
   else if (!strcmp(cmd, "RIGHT"))     { moveMotor(right, arg); }
-  else if (!strcmp(cmd, "SHUTTER"))   { Serial.println("Shooting"); takeSingleShot(); }
+  else if (!strcmp(cmd, "SHUTTER"))   { Serial.println("Shooting"); shoot(shutterArg); }
   else                                { Serial.println("Option not found"); Serial.println(String(cmd)); }
 
   /* Echo the same data back! */
@@ -118,25 +123,35 @@ void moveMotor(Direction dir, int angle) {
     }
   } else {
     int numSteps = degreesToSteps(dir, angle);
-    Serial.println(numSteps);
     for (i = 0; i < numSteps; i++) { pulseStepper(stp_pin); }
-    sendCompletionCallback();
+    sendMotorCompletionCallback();
   }
 
   Serial.println("Reset");
   resetBEDPins();
 }
 
-/* Holds down the trigger for one whole second */
-void takeSingleShot() {
+/* Holds down the trigger for BULBTIME second */
+void shoot(float bulb) {
+  float b;
+  if (bulb <= 0) {
+    b = float(1000);
+  } else {
+    b = float(1000) * bulb;
+  }
+  
   digitalWrite(SHUTTER, HIGH);
-  delay(1000);
+  delay(b);
   digitalWrite(SHUTTER, LOW);
-  sendCompletionCallback();
+  sendShutterCompletionCallback();
 }
 
-void sendCompletionCallback() {
-  uart.write("OK", 2);
+void sendShutterCompletionCallback() {
+  uart.write("SHUTTER OK", 10);
+}
+
+void sendMotorCompletionCallback() {
+  uart.write("MOTORS OK", 9);
 }
 
 /** 
