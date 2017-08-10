@@ -93,8 +93,6 @@ void moveMotor(Direction dir, int angle) {
   registerWrite(V_EN, LOW);   // Pull ENABLE pins to allow for movement
   registerWrite(H_EN, LOW);
 
-  Serial.println("Moving motor");
-
   int stp_pin;
   switch (dir) {
     case left:

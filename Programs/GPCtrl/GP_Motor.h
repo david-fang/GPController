@@ -1,6 +1,6 @@
 
-#define V_FULL_STEPS_PER_REV 9340
-#define H_FULL_STEPS_PER_REV 3125
+#define V_FULL_STEPS_PER_REV 9333
+#define H_FULL_STEPS_PER_REV 3111
 #define DEGREES_PER_REV 360
 
 /* V-Stepper Pinouts*/
